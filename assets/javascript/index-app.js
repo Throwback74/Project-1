@@ -15,52 +15,65 @@ $('#search').keypress(function (e) {
 });
 $(document).ready(function() {
 
+    // function do_something(coords) {
+    //     // Do something with the coords here
+    //     // eg. show the user on a map, or customize
+    //     // the site contents somehow
+    // }
     
-    // set endpoint and your access key
-    var access_key = '74fe99bba3ae89c11ba16b240a3ce38a';
+    // navigator.geolocation.getCurrentPosition(function(position) {
+    //     do_something(position.coords);
+    //     },
+    //     function(failure) {
+    //         $.getJSON('https://ipinfo.io/geo?token=a3543e0f72035d', function(response) {
+    //         var loc = response.loc.split(',');
+    //         var coords = {
+    //             latitude: loc[0],
+    //             longitude: loc[1]
+    //         }, "jsonp"
+    //         do_something(coords);
+    //         });
+    //     };
+    // });
+    var userLocation;
 
-    // get the API result via jQuery.ajax
-    $.ajax({
-        url: 'http://api.ipstack.com/check?access_key=' + access_key,   
-        dataType: 'jsonp',
-        success: function(json) {
-            console.log(json);
-            // output the "capital" object inside "location"
-            // console.log(json.location.capital);
-            console.log(json.ip);
-            var userIP = json.ip;
-            var userCity = json.city;
-            var userLat = json.latitude;
-            var userLong =  json.longitude;
-            var userST = json.region_code;
-            // var userIP;
-            // var userCity;
-            
-            localStorage.setItem("IP-Address", userIP);
-            localStorage.setItem("City", userCity);
-            localStorage.setItem("Latitude", userLat);
-            localStorage.setItem("Longitude", userLong);
-//in progress, to be integrated once completed
+    $.getJSON('https://ipinfo.io/geo?token=a3543e0f72035d', function(response) {
+        var loc = response.loc.split(',');
+        var coords = {
+            latitude: loc[0],
+            longitude: loc[1]
+        };
+        userLocation = response;
+        localStorage.setItem("IP-Address", userLocation.ip);
+        localStorage.setItem("City", userLocation.city);
+        localStorage.setItem("Latitude", coords.latitude);
+        localStorage.setItem("Longitude", coords.longitude);
+        localStorage.setItem("Country", userLocation.country);
+        localStorage.setItem("Postal Code", userLocation.postal);
+        localStorage.setItem("Area Code", userLocation.phone);
+        
+        console.log(loc);
+        console.log(response);
+        return userLocation; 
+    }, "jsonp");
+
+    // localStorage.setItem("IP-Address", userLocation.ip);
+    // localStorage.setItem("City", userLocation.city);
+    // localStorage.setItem("Latitude", coords.latitude);
+    // localStorage.setItem("Longitude", coords.longitude);
+    // localStorage.setItem("Country", userLocation.country);
+    // localStorage.setItem("Postal Code", userLocation.postal);
+    // localStorage.setItem("Area Code", userLocation.phone);
     var city = localStorage.getItem("City");
     var Lat = localStorage.getItem("Latitude");
     var Long = localStorage.getItem("Longitude");
     console.log(Lat);
     console.log(Long);
 
-    // var mapboxQ = function(userCity) {
-    // var query = 'https://api.mapbox.com//geocoding/v5/mapbox.places/' + userCity + '.json?access_token=pk.eyJ1IjoidGhyb3diYWNrNzQiLCJhIjoiY2pqODZucHNiMGFqYTN2bXE0dG1oZG8xZSJ9.JvXVhKae1AK2YTZG7yHg-g'
 
-    // $.ajax({
-    //     url: query,
-    //     method: "GET"
-    // }).then(function(response) {
-    //     // Printing the entire object to console
-    //     console.log(response);
-    //     var results = response.events;
-    // });    
-    // };
-    // mapboxQ(userCity);
-    var searchVenue = function(userIP) {
+
+    
+    var searchVenue = function(city) {
     $("#userLoc").text(city);
     
     var popularArray = [];
@@ -95,7 +108,7 @@ $(document).ready(function() {
             $(`#cardp${i}`).text(eventName);
             $(`#eventLink${i}`).attr("href", eventURL);
             console.log(results[i].performers[0].images.huge);
-            if(results[i].performers[0].images.huge === undefined) {
+            if(results[i].performers[0].images.huge === undefined || results[i].performers[0] === undefined) {
                 eventImage = "assets/images/retroMic.jpg";
                 console.log(eventImage);
                 $("#bandIMG" + i).attr({
@@ -125,10 +138,10 @@ $(document).ready(function() {
     });
 };
 
-searchVenue(userIP);
+searchVenue(city);
 
-}
-});
+
+
 
 var locSearch = `
 <div id="sBox">
